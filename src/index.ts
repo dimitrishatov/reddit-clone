@@ -1,5 +1,16 @@
 import { MikroORM } from "@mikro-orm/core";
+import { __prod__ } from "./constants";
 
-const orm = MikroORM.init();
+const main = async () => {
+   // This interacts with database and returns a 
+   // promise so we await it
+   const orm = await MikroORM.init({
+      dbName: 'reddit',
+      type: 'postgresql', 
+      debug: !__prod__
+   }); 
+}
 
-console.log("hello world");
+main()
+
+console.log("hello world")
