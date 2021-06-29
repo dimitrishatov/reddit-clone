@@ -35,6 +35,7 @@ const main = async () => {
             sameSite: 'lax', // protect csrf
             secure: __prod__, // cookie only works in https
          },
+         saveUninitialized: false,
          secret: 'randomstring',
          resave: false
       })
@@ -46,6 +47,7 @@ const main = async () => {
          resolvers: [HelloResolver, PostResolver, UserResolver],
          validate: false
       }), 
+      // allows us to access sessions inside of our resolvers
       context: ({req, res}): MyContext => ({ em: orm.em, req, res })
    })
 
