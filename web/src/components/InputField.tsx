@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from 'react'
 import { useField } from "formik"
-import { FormControl, FormLabel, Input, FormErrorMessage } from "@chakra-ui/core"
+import { FormControl, FormLabel, Input, FormErrorMessage } from "@chakra-ui/react"
 
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 	label: string;
@@ -14,7 +14,7 @@ export const InputField: React.FC<InputFieldProps> = (props) => {
 		<FormControl isInvalid={!!error}>
 			<FormLabel htmlFor={field.name}>{props.label}</FormLabel>
 			<Input {...field} id={field.name} placeholder={props.placeholder}/>
-			{ error ? <FormErrorMessage>{form.errors.name}</FormErrorMessage> : null}
+			{ error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
 		</FormControl>
 	); 
 }
