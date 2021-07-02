@@ -23,7 +23,8 @@ const main = async () => {
    const redisClient = redis.createClient()
 
    app.use(cors({
-      origin: "http://localhost:3000",
+      // we are applying this middleware to all routes
+      origin:"http://localhost:3000",
       credentials:true
    }))
 
