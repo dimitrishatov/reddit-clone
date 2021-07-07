@@ -53,7 +53,7 @@ export class UserResolver {
 	): Promise<UserResponse> {
 		const errors = validateRegister(options); 
 		if (errors) {
-			return { }
+			return { errors }
 		}
 
 		const hashedPassword = await argon2.hash(options.password)
