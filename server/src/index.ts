@@ -12,11 +12,13 @@ import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis'
 import cors from 'cors'
-import { sendEmail } from "./utils/sendEmail";
+import { User } from "./entities/User";
+// import { sendEmail } from "./utils/sendEmail";
 
 const main = async () => {
-   sendEmail("bob@bob.com", "hello there")
+   // sendEmail("bob@bob.com", "hello there")
    const orm = await MikroORM.init(microConfig);
+   await orm.em.nativeDelete(User, {})
    await orm.getMigrator().up(); // Automatically run migration
 
    const app = express();
