@@ -32,7 +32,7 @@ export class UserResolver {
 	// 	@Arg('email') email:string,
 	// 	@Ctx() {req} : MyContext
 	// ) {
-	// 	// const person await em.findOne(Post, {email})
+	// 	// const user = await em.findOne(User, {email})
 	// 	return true;
 	// }
 
