@@ -17,9 +17,9 @@ export const Register: React.FC<registerProps> = ({}) => {
 	return (
 		<Wrapper variant="small">
 			<Formik 
-				initialValues={{username: '', password: ''}}
+				initialValues={{email: '', username: '', password: ''}}
 				onSubmit={ async (values, {setErrors}) => {
-					const response = await register(values); 
+					const response = await register({ options: values }); 
 					// optional chaining returns undefined if no data
 					if(response.data?.register.errors) {
 						// ui will show graphql error messages
@@ -37,6 +37,13 @@ export const Register: React.FC<registerProps> = ({}) => {
 							placeholder="username" 
 							label="Username"
 						/>
+						<Box mt={4}>
+							<InputField 
+								name="email" 
+								placeholder="email" 
+								label="Email"
+							/>
+						</Box>
 						<Box mt={4}>
 							<InputField 
 								name="password" 
