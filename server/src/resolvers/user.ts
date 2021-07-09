@@ -27,14 +27,14 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-	@Mutation(() => Boolean)
-	async forgotPassword(
-		@Arg('email') email:string,
-		@Ctx() {req} : MyContext
-	) {
-		// const person await em.findOne(Post, {email})
-		return true;
-	}
+	// @Mutation(() => Boolean)
+	// async forgotPassword(
+	// 	@Arg('email') email:string,
+	// 	@Ctx() {req} : MyContext
+	// ) {
+	// 	// const person await em.findOne(Post, {email})
+	// 	return true;
+	// }
 
 	@Query(() => User, {nullable: true})
 	async me(@Ctx() { req, em }: MyContext) {
