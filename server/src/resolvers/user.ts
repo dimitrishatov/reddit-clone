@@ -7,6 +7,7 @@ import { COOKIE_NAME } from "../constants";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { sendEmail } from "../utils/sendEmail";
+import {v4} from 'uuid'
 
 @ObjectType() 
 class FieldError {
@@ -40,7 +41,7 @@ export class UserResolver {
 		}
 
 		// random string for now
-		const token = 'dsfkjsdfhdsjkfhdsf'
+		const token = v4()
 		
 		await sendEmail(
 			email, 
