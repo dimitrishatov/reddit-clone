@@ -1,5 +1,6 @@
 import { ObjectType, Field } from "type-graphql";
 import {
+   BaseEntity,
    Column,
    CreateDateColumn,
    Entity,
@@ -10,7 +11,7 @@ import {
 // Entity corresponds to a db table
 @ObjectType() // Makes this GraphQL Type
 @Entity()
-export class User {
+export class User extends BaseEntity {
    @Field()
    @PrimaryGeneratedColumn()
    id!: number;

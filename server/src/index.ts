@@ -1,7 +1,5 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import microConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -26,9 +24,6 @@ const main = async () => {
       synchronize: true,
       entities: [Post, User],
    });
-
-   const orm = await MikroORM.init(microConfig);
-   await orm.getMigrator().up(); // Automatically run migration
 
    const app = express();
 
@@ -69,7 +64,7 @@ const main = async () => {
          validate: false,
       }),
       // allows us to access sessions inside of our resolvers
-      context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+      context: ({ req, res }) => ({ req, res, redis }),
    });
 
    apolloServer.applyMiddleware({ app, cors: false });
