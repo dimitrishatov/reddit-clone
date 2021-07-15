@@ -11,6 +11,7 @@ import {
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import { isAuth } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
 @InputType()
 class PostInput {
@@ -22,21 +23,30 @@ class PostInput {
 
 @Resolver()
 export class PostResolver {
-   // READ ALL POSTS
-   @Query(() => [Post]) //Graphql type (can't be inferred)
-   // {em} instead of ctx for destructuring
-   posts(): Promise<Post[]> {
-      //ts type
-      return Post.find();
+   @Query(() => [Post])
+   posts(
+      @Arg("limit") limit: number,
+      @Arg("cursor", () => String, { nullable: true }) cursor: string | null // all posts after some point (date)
+   ): Promise<Post[]> {
+      const realLimit = Math.min(50, limit);
+      const queryBuilder = getConnection()
+         .getRepository(Post)
+         .createQueryBuilder("p")
+         .orderBy('"createdAt"', "DESC")
+         .take(realLimit);
+      if (cursor) {
+         queryBuilder.where('"createdAt" < :cursor', {
+            cursor: new Date(parseInt(cursor)),
+         });
+      }
+      return queryBuilder.getMany();
    }
 
-   // READ SINGLE POST BY ID
    @Query(() => Post, { nullable: true })
    post(@Arg("id") id: number): Promise<Post | undefined> {
       return Post.findOne(id);
    }
 
-   // CREATE POST
    @Mutation(() => Post)
    @UseMiddleware(isAuth)
    async createPost(
@@ -49,7 +59,6 @@ export class PostResolver {
       }).save();
    }
 
-   // UPDATE POST
    @Mutation(() => Post, { nullable: true })
    async updatePost(
       @Arg("id") id: number,
