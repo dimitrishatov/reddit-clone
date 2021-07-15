@@ -28,7 +28,7 @@ class PostInput {
 export class PostResolver {
    @FieldResolver(() => String)
    textSnippet(@Root() root: Post) {
-      const snippet = root.text.slice(0, 50) + "...";
+      const snippet = root.text.slice(0, 100) + "...";
       return snippet;
    }
 
