@@ -12,6 +12,7 @@ import {
   Flex,
   Button,
 } from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 const Index = () => {
@@ -41,11 +42,23 @@ const Index = () => {
       ) : (
         <Stack spacing={8}>
           {data!.posts.posts.map((p) => (
-            <Box key={p.id} p={5} shadow="md" borderWidth="1px">
-              <Heading fontsize="xl">{p.title}</Heading>
-              <Text>posted by {p.creator.username}</Text>
-              <Text mt={4}>{p.textSnippet}</Text>
-            </Box>
+            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+              <Flex
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <ChevronUpIcon size="24px" />
+                {p.points}
+                <ChevronDownIcon size="24px" />
+              </Flex>
+
+              <Box ml={4}>
+                <Heading fontsize="xl">{p.title}</Heading>
+                <Text>posted by {p.creator.username}</Text>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+            </Flex>
           ))}
         </Stack>
       )}
