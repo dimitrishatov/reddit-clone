@@ -81,9 +81,6 @@ export const createUrqlClient = (ssrExchange: any) => ({
   fetchOptions: {
     credentials: "include" as const,
   },
-  // all this just updates cache
-  // when login or register mutation runs
-  // so username shows correctly after login
   exchanges: [
     dedupExchange,
     cacheExchange({
@@ -96,7 +93,19 @@ export const createUrqlClient = (ssrExchange: any) => ({
         },
       },
       updates: {
+        // cache updates for mutations
         Mutation: {
+          createPost: (_result, args, cache, info) => {
+            // if we invalidate it refetches post query
+            // we do this for all paginated queries
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(
+              (info) => info.fieldName === "posts"
+            );
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || {});
+            });
+          },
           logout: (_result, args, cache, info) => {
             // return null from me query
             betterUpdateQuery<LogoutMutation, MeQuery>(

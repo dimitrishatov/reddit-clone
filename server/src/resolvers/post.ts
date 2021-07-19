@@ -16,6 +16,7 @@ import {
 import { Post } from "../entities/Post";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Upvote } from "../entities/Upvote";
 
 @InputType()
 class PostInput {
@@ -35,6 +36,34 @@ class PaginatedPosts {
 
 @Resolver(Post)
 export class PostResolver {
+   @Mutation(() => Boolean)
+   @UseMiddleware(isAuth)
+   async vote(
+      @Arg("postId", () => Int) postId: number,
+      @Arg("value", () => Int) value: number,
+      @Ctx() { req }: MyContext
+   ) {
+      const isUpvote = value !== -1;
+      const realValue = isUpvote ? 1 : -1;
+      const userId = req.session.userId;
+
+      await getConnection().query(
+         `
+         START TRANSACTION;
+
+         insert into upvote ("userId", "postId", value)
+         values (${userId}, ${postId}, ${realValue});
+
+         update post
+         set points = points + ${realValue}
+         where id = ${postId};
+
+         COMMIT; 
+      `
+      );
+      return true;
+   }
+
    @FieldResolver(() => String)
    textSnippet(@Root() root: Post) {
       const snippet = root.text.slice(0, 100) + "...";
@@ -48,18 +77,32 @@ export class PostResolver {
    ): Promise<PaginatedPosts> {
       const realLimit = Math.min(50, limit);
       const realLimitPlusOne = realLimit + 1;
-      const queryBuilder = getConnection()
-         .getRepository(Post)
-         .createQueryBuilder("p")
-         .orderBy('"createdAt"', "DESC")
-         .take(realLimitPlusOne);
+
+      const replacements: any[] = [realLimitPlusOne];
       if (cursor) {
-         queryBuilder.where('"createdAt" < :cursor', {
-            cursor: new Date(parseInt(cursor)),
-         });
+         replacements.push(new Date(parseInt(cursor)));
       }
 
-      const posts = await queryBuilder.getMany();
+      // json_build_object is to match graphql type
+      const posts = await getConnection().query(
+         `
+         select p.*, 
+         json_build_object(
+            'id', u.id,
+            'username', u.username,
+            'email', u.email,
+            'createdAt', u."createdAt",
+            'updatedAt', u."updatedAt"
+         ) creator
+         from post p
+         inner join public.user u on u.id = p."creatorId"
+         ${cursor ? 'where p."createdAt" < $2' : ""}
+         order by p."createdAt" DESC
+         limit $1
+      `,
+         replacements
+      );
+
       return {
          posts: posts.slice(0, realLimit),
          hasMore: posts.length === realLimitPlusOne,
