@@ -97,8 +97,13 @@ export const createUrqlClient = (ssrExchange: any) => ({
         Mutation: {
           createPost: (_result, args, cache, info) => {
             // if we invalidate it refetches post query
-            cache.invalidate("Query", "posts", {
-              limit: 10,
+            // we do this for all paginated queries
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(
+              (info) => info.fieldName === "posts"
+            );
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || {});
             });
           },
           logout: (_result, args, cache, info) => {
