@@ -5,12 +5,14 @@ import {
   MeDocument,
   LoginMutation,
   RegisterMutation,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import { pipe, tap } from "wonka";
 import { Exchange } from "urql";
 import Router from "next/router";
+import gql from "graphql-tag";
 
 //https://github.com/FormidableLabs/urql/issues/225#issuecomment-482592203
 // allows us to catch and handle errors at a global level
@@ -95,6 +97,29 @@ export const createUrqlClient = (ssrExchange: any) => ({
       updates: {
         // cache updates for mutations
         Mutation: {
+          vote: (_result, args, cache, info) => {
+            const { postId, value } = args as VoteMutationVariables;
+            const data = cache.readFragment(
+              gql`
+                fragment _ on Post {
+                  id
+                  points
+                }
+              `,
+              { id: postId } as any
+            );
+            if (data) {
+              const newPoints = (data.points as number) + value;
+              cache.writeFragment(
+                gql`
+                  fragment __ on Post {
+                    points
+                  }
+                `,
+                { id: postId, points: newPoints } as any
+              );
+            }
+          },
           createPost: (_result, args, cache, info) => {
             // if we invalidate it refetches post query
             // we do this for all paginated queries
