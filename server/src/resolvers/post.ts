@@ -43,6 +43,8 @@ export class PostResolver {
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext
   ) {
+    console.log(req.session);
+
     const isUpvote = value !== -1;
     const realValue = isUpvote ? 1 : -1;
     const userId = req.session.userId;
@@ -89,8 +91,6 @@ export class PostResolver {
           [realValue, postId]
         );
       });
-    } else {
-      return true;
     }
     return true;
   }
@@ -104,14 +104,26 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null // all posts after some point (date)
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null, // all posts after some point (date)
+    @Ctx() { req }: MyContext
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
+    console.log(req.session);
+
+    // for sql
     const replacements: any[] = [realLimitPlusOne];
+
+    if (req.session.userId) {
+      replacements.push(req.session.userId);
+    }
+
+    let cursorIndex = 3;
+
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
+      cursorIndex = replacements.length;
     }
 
     // json_build_object is to match graphql type
@@ -124,10 +136,16 @@ export class PostResolver {
             'email', u.email,
             'createdAt', u."createdAt",
             'updatedAt', u."updatedAt"
-         ) creator
+         ) creator,
+         ${
+           // we only fetch voteStatus if user is logged in
+           req.session.userId
+             ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
+             : 'null as "voteStatus"'
+         }
          from post p
          inner join public.user u on u.id = p."creatorId"
-         ${cursor ? 'where p."createdAt" < $2' : ""}
+         ${cursor ? `where p."createdAt" < $${cursorIndex}` : ""}
          order by p."createdAt" DESC
          limit $1
       `,
