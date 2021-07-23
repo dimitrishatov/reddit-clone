@@ -12,9 +12,7 @@ import {
   Text,
   Flex,
   Button,
-  IconButton,
 } from "@chakra-ui/react";
-import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 const Index = () => {
@@ -33,9 +31,10 @@ const Index = () => {
   return (
     <Layout>
       <Flex align="center">
-        <Heading mb={4}>Reddit* 🚀</Heading>
         <NextLink href="/create-post">
-          <Link ml="auto">create post</Link>
+          <Link mb={4} ml="auto">
+            create post
+          </Link>
         </NextLink>
       </Flex>
 
