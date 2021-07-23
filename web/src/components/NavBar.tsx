@@ -31,14 +31,22 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 		// user is logged in
 	} else {
 		body = (
-			<Flex>
-				<Box mr={2}>{data.me.username}</Box>
+			<Flex align="center">
+				<NextLink href="/create-post">
+					<Button as={Link} color="teal.50" mr={4}>
+						create post
+					</Button>
+				</NextLink>
+				<Box align="center" mr={2}>
+					{data.me.username}
+				</Box>
 				<Button
 					onClick={() => {
 						logout();
 					}}
 					isLoading={logoutFetching}
 					variant="link"
+					color="teal.50"
 				>
 					logout
 				</Button>
@@ -47,13 +55,15 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 	}
 
 	return (
-		<Flex zIndex={1} position="sticky" top={0} bg="teal" p={4}>
-			<NextLink href="/">
-				<Link>
-					<Heading color="teal.50">Reddit* 🚀</Heading>
-				</Link>
-			</NextLink>
-			<Box ml={"auto"}>{body}</Box>
+		<Flex zIndex={1} position="sticky" top={0} bg="teal" p={4} align="center">
+			<Flex flex={1} m="auto" align="center" maxW={800}>
+				<NextLink href="/">
+					<Link>
+						<Heading color="teal.50">Reddit* 🚀</Heading>
+					</Link>
+				</NextLink>
+				<Box ml={"auto"}>{body}</Box>
+			</Flex>
 		</Flex>
 	);
 };
