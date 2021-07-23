@@ -48,7 +48,11 @@ const Index = () => {
               <UpvoteSection post={p} />
 
               <Box ml={4}>
-                <Heading fontsize="xl">{p.title}</Heading>
+                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                  <Link>
+                    <Heading fontsize="xl">{p.title}</Heading>
+                  </Link>
+                </NextLink>
                 <Text>posted by {p.creator.username}</Text>
                 <Text mt={4}>{p.textSnippet}</Text>
               </Box>
