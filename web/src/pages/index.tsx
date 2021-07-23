@@ -37,35 +37,37 @@ const Index = () => {
         <div>loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data!.posts.posts.map((p) => (
-            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-              <UpvoteSection post={p} />
+          {data!.posts.posts.map((p) =>
+            !p ? null : (
+              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+                <UpvoteSection post={p} />
 
-              <Box flex={1} ml={4} mr={4}>
-                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                  <Link>
-                    <Heading fontsize="xl">{p.title}</Heading>
-                  </Link>
-                </NextLink>
-                <Text>posted by {p.creator.username}</Text>
-                <Flex align="center">
-                  <Text flex={1} mt={4}>
-                    {p.textSnippet}
-                  </Text>
-                  <IconButton
-                    colorScheme="teal"
-                    variant="outline"
-                    ml="auto"
-                    aria-label="delete-post"
-                    icon={<DeleteIcon />}
-                    onClick={() => {
-                      deletePost({ id: p.id });
-                    }}
-                  />
-                </Flex>
-              </Box>
-            </Flex>
-          ))}
+                <Box flex={1} ml={4} mr={4}>
+                  <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                    <Link>
+                      <Heading fontsize="xl">{p.title}</Heading>
+                    </Link>
+                  </NextLink>
+                  <Text>posted by {p.creator.username}</Text>
+                  <Flex align="center">
+                    <Text flex={1} mt={4}>
+                      {p.textSnippet}
+                    </Text>
+                    <IconButton
+                      colorScheme="teal"
+                      variant="outline"
+                      ml="auto"
+                      aria-label="delete-post"
+                      icon={<DeleteIcon />}
+                      onClick={() => {
+                        deletePost({ id: p.id });
+                      }}
+                    />
+                  </Flex>
+                </Box>
+              </Flex>
+            )
+          )}
         </Stack>
       )}
       {data && data.posts.hasMore ? (
