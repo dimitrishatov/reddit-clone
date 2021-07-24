@@ -1,6 +1,10 @@
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
+import {
+  useDeletePostMutation,
+  useMeQuery,
+  usePostsQuery,
+} from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import { UpvoteSection } from "../components/UpvoteSection";
 import NextLink from "next/link";
@@ -22,6 +26,7 @@ const Index = () => {
     limit: 10,
     cursor: null as null | string,
   });
+  const [{ data: meData }] = useMeQuery();
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
@@ -53,28 +58,33 @@ const Index = () => {
                     <Text flex={1} mt={4}>
                       {p.textSnippet}
                     </Text>
-                    <Box ml="auto">
-                      <NextLink href="/post/edit/[id]" as={`post/edit/${p.id}`}>
+                    {meData?.me?.id !== p.creator.id ? null : (
+                      <Box ml="auto">
+                        <NextLink
+                          href="/post/edit/[id]"
+                          as={`post/edit/${p.id}`}
+                        >
+                          <IconButton
+                            as={Link}
+                            colorScheme="teal"
+                            variant="outline"
+                            mr={2}
+                            aria-label="edit post"
+                            icon={<EditIcon />}
+                          />
+                        </NextLink>
                         <IconButton
-                          as={Link}
                           colorScheme="teal"
                           variant="outline"
-                          mr={2}
-                          aria-label="edit post"
-                          icon={<EditIcon />}
+                          ml="auto"
+                          aria-label="delete post"
+                          icon={<DeleteIcon />}
+                          onClick={() => {
+                            deletePost({ id: p.id });
+                          }}
                         />
-                      </NextLink>
-                      <IconButton
-                        colorScheme="teal"
-                        variant="outline"
-                        ml="auto"
-                        aria-label="delete post"
-                        icon={<DeleteIcon />}
-                        onClick={() => {
-                          deletePost({ id: p.id });
-                        }}
-                      />
-                    </Box>
+                      </Box>
+                    )}
                   </Flex>
                 </Box>
               </Flex>
