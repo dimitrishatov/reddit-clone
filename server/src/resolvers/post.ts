@@ -178,7 +178,7 @@ export class PostResolver {
   @Mutation(() => Post, { nullable: true })
   @UseMiddleware(isAuth)
   async updatePost(
-    @Arg("id") id: number,
+    @Arg("id", () => Int) id: number,
     @Arg("title", () => String, { nullable: true }) title: string,
     @Arg("text", () => String, { nullable: true }) text: string,
     @Ctx() { req }: MyContext
@@ -189,7 +189,7 @@ export class PostResolver {
       .set({ title, text })
       .where('id = :id and "creatorId" = :creatorId', {
         id,
-        creatorid: req.session.userId,
+        creatorId: req.session.userId,
       })
       .returning("*")
       .execute();
