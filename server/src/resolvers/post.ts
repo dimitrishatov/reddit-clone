@@ -107,6 +107,23 @@ export class PostResolver {
     return userLoader.load(post.creatorId);
   }
 
+  @FieldResolver(() => Int, { nullable: true })
+  async voteStatus(
+    @Root() post: Post,
+    @Ctx() { upvoteLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return null;
+    }
+
+    const upvote = await upvoteLoader.load({
+      postId: post.id,
+      userId: req.session.userId,
+    });
+
+    return upvote ? upvote.value : null;
+  }
+
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
@@ -119,29 +136,15 @@ export class PostResolver {
     // for sql
     const replacements: any[] = [realLimitPlusOne];
 
-    if (req.session.userId) {
-      replacements.push(req.session.userId);
-    }
-
-    let cursorIndex = 3;
-
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
-      cursorIndex = replacements.length;
     }
 
-    // json_build_object is to match graphql type
     const posts = await getConnection().query(
       `
-         select p.*, 
-         ${
-           // we only fetch voteStatus if user is logged in
-           req.session.userId
-             ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-             : 'null as "voteStatus"'
-         }
+         select p.*
          from post p
-         ${cursor ? `where p."createdAt" < $${cursorIndex}` : ""}
+         ${cursor ? `where p."createdAt" < $2` : ""}
          order by p."createdAt" DESC
          limit $1
       `,
